@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Luces, Cámara... ¿Infancia?</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Libre+Franklin:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-void:#150F14;
+    --bg-stage:#1F1620;
+    --bg-stage-2:#271B29;
+    --gold:#E7B24B;
+    --gold-dim:#8a6a2a;
+    --wine:#8B2942;
+    --wine-light:#B44766;
+    --sage:#7A9B85;
+    --rust:#C1440E;
+    --paper:#F1E6D8;
+    --ink:#221A1D;
+    --text:#F4ECE7;
+    --text-dim:#B8A9AE;
+    --radius:10px;
+  }
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    margin:0;
+    min-height:100vh;
+    background:
+      radial-gradient(ellipse at 50% -10%, #2c1b26 0%, var(--bg-void) 55%);
+    color:var(--text);
+    font-family:'Libre Franklin', Arial, sans-serif;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:22px;
+  }
+  #app{
+    width:100%;
+    max-width:1000px;
+  }
+  /* ===== MARQUEE HEADER ===== */
+  .marquee{
+    position:relative;
+    background:linear-gradient(180deg, var(--wine) 0%, #6e1f34 100%);
+    border-radius:14px 14px 0 0;
+    padding:22px 18px 16px;
+    text-align:center;
+    overflow:hidden;
+    box-shadow:0 0 0 1px rgba(255,255,255,0.05) inset;
+  }
+  .lights{
+    display:flex;
+    justify-content:space-between;
+    padding:0 6px;
+  }
+  .lights span{
+    width:8px;height:8px;border-radius:50%;
+    background:var(--gold-dim);
+    box-shadow:0 0 4px rgba(231,178,75,0.2);
+    animation:chase 1.6s infinite ease-in-out;
+  }
+  @keyframes chase{
+    0%,100%{background:var(--gold-dim); box-shadow:0 0 4px rgba(231,178,75,0.15);}
+    50%{background:var(--gold); box-shadow:0 0 10px 2px rgba(231,178,75,0.9);}
+  }
+  .marquee h1{
+    font-family:'Oswald', 'Arial Narrow', sans-serif;
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:2px;
+    font-size:clamp(22px, 4.4vw, 38px);
+    margin:10px 0 2px;
+    color:var(--text);
+  }
+  .marquee h1 span{color:var(--gold);}
+  .act-indicator{
+    font-family:'Space Mono', monospace;
+    font-size:12px;
+    letter-spacing:2px;
+    text-transform:uppercase;
+    color:var(--paper);
+    opacity:0.85;
+    margin-top:6px;
+  }
+  /* ===== DASHBOARD ===== */
+  .dashboard{
+    background:var(--bg-stage-2);
+    padding:14px 18px;
+    display:grid;
+    grid-template-columns:repeat(2, 1fr);
+    gap:10px 22px;
+    border-bottom:1px solid rgba(255,255,255,0.06);
+  }
+  @media (max-width:520px){ .dashboard{grid-template-columns:1fr;} }
+  .stat{ }
+  .stat-top{
+    display:flex; justify-content:space-between; align-items:baseline;
+    font-family:'Space Mono', monospace;
+    font-size:11px;
+    letter-spacing:1px;
+    text-transform:uppercase;
+    color:var(--text-dim);
+    margin-bottom:4px;
+  }
+  .stat-top b{color:var(--text); font-size:12px;}
+  .bar-track{
+    height:8px; border-radius:6px;
+    background:rgba(255,255,255,0.08);
+    overflow:hidden;
+  }
+  .bar-fill{
+    height:100%; border-radius:6px;
+    transition:width 0.7s cubic-bezier(.4,0,.2,1);
+    width:50%;
+  }
+  .fill-fama{background:var(--rust);}
+  .fill-bienestar{background:var(--sage);}
+  .fill-educacion{background:var(--gold);}
+  .fill-autonomia{background:var(--wine-light);}
+
+  /* ===== STAGE ===== */
+  #stage{
+    background:var(--bg-stage);
+    padding:34px 30px 30px;
+    min-height:360px;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+  }
+  .scene-label{
+    font-family:'Space Mono', monospace;
+    font-size:12px;
+    letter-spacing:2px;
+    text-transform:uppercase;
+    color:var(--gold);
+    margin-bottom:16px;
+  }
+  .dialogue{margin-bottom:22px;}
+  .line{
+    font-size:clamp(17px,2.6vw,21px);
+    line-height:1.55;
+    margin:0 0 12px;
+    color:var(--text);
+  }
+  .line .who{
+    display:block;
+    font-family:'Space Mono', monospace;
+    font-size:11px;
+    letter-spacing:2px;
+    text-transform:uppercase;
+    color:var(--text-dim);
+    margin-bottom:4px;
+  }
+  .line.narration{font-style:italic; color:var(--text-dim); font-size:16px;}
+
+  .options{display:flex; flex-direction:column; gap:10px; margin-top:6px;}
+  .opt-btn{
+    text-align:left;
+    background:var(--bg-stage-2);
+    border:1px solid rgba(255,255,255,0.1);
+    color:var(--text);
+    padding:16px 18px;
+    border-radius:var(--radius);
+    font-family:'Libre Franklin', sans-serif;
+    font-size:16px;
+    cursor:pointer;
+    display:flex;
+    gap:12px;
+    align-items:flex-start;
+    transition:background 0.15s, border-color 0.15s, transform 0.1s;
+  }
+  .opt-btn:hover{background:#33222f; border-color:var(--gold);}
+  .opt-btn:active{transform:scale(0.99);}
+  .opt-btn:focus-visible{outline:3px solid var(--gold); outline-offset:2px;}
+  .opt-key{
+    font-family:'Space Mono', monospace;
+    background:var(--wine);
+    color:var(--text);
+    min-width:26px; height:26px;
+    border-radius:6px;
+    display:flex; align-items:center; justify-content:center;
+    font-size:13px; flex-shrink:0;
+  }
+  .consequence{
+    background:rgba(231,178,75,0.08);
+    border-left:3px solid var(--gold);
+    padding:14px 16px;
+    border-radius:0 8px 8px 0;
+    font-size:16px;
+    line-height:1.5;
+    margin-bottom:20px;
+  }
+  .delta-row{
+    font-family:'Space Mono', monospace;
+    font-size:12px;
+    color:var(--text-dim);
+    margin-top:8px;
+    display:flex; flex-wrap:wrap; gap:12px;
+  }
+  .delta-row span.up{color:var(--sage);}
+  .delta-row span.down{color:var(--rust);}
+
+  .primary-btn{
+    align-self:flex-start;
+    background:var(--gold);
+    color:var(--ink);
+    border:none;
+    font-family:'Oswald', sans-serif;
+    text-transform:uppercase;
+    letter-spacing:1px;
+    font-weight:600;
+    font-size:14px;
+    padding:12px 26px;
+    border-radius:8px;
+    cursor:pointer;
+    margin-top:6px;
+  }
+  .primary-btn:hover{background:#f2c46b;}
+  .primary-btn:focus-visible{outline:3px solid var(--wine-light); outline-offset:2px;}
+
+  /* ===== INTERSTITIALS ===== */
+  .inter-wrap{display:flex; flex-direction:column; align-items:center; text-align:center; gap:18px;}
+  .tabloid{
+    background:var(--paper);
+    color:var(--ink);
+    padding:22px 24px;
+    border-radius:4px;
+    max-width:520px;
+    transform:rotate(-0.6deg);
+    box-shadow:0 10px 30px rgba(0,0,0,0.4);
+  }
+  .tabloid .kicker{
+    font-family:'Space Mono', monospace;
+    font-size:11px; letter-spacing:2px; text-transform:uppercase;
+    border-top:2px solid var(--ink); border-bottom:2px solid var(--ink);
+    padding:4px 0; margin-bottom:10px;
+  }
+  .tabloid h2{
+    font-family:'Oswald', sans-serif;
+    font-size:clamp(22px,3.6vw,30px);
+    line-height:1.15;
+    margin:0 0 8px;
+    text-transform:uppercase;
+  }
+  .tabloid p{font-size:14px; line-height:1.5; margin:0; color:#4a3d40;}
+
+  .social-card{
+    background:#fff;
+    color:var(--ink);
+    border-radius:14px;
+    max-width:380px;
+    overflow:hidden;
+    box-shadow:0 10px 30px rgba(0,0,0,0.4);
+    text-align:left;
+  }
+  .social-head{
+    display:flex; align-items:center; gap:10px;
+    padding:12px 14px; border-bottom:1px solid #eee;
+    font-size:13px; font-weight:600;
+  }
+  .social-avatar{
+    width:32px; height:32px; border-radius:50%;
+    background:linear-gradient(135deg, var(--wine), var(--gold));
+    flex-shrink:0;
+  }
+  .social-body{padding:12px 14px; font-size:14px; line-height:1.5;}
+  .social-foot{
+    padding:10px 14px; border-top:1px solid #eee;
+    font-family:'Space Mono', monospace; font-size:12px; color:#777;
+  }
+
+  .forum{
+    max-width:480px; text-align:left; display:flex; flex-direction:column; gap:10px;
+  }
+  .forum-post{
+    background:var(--bg-stage-2);
+    border:1px solid rgba(255,255,255,0.08);
+    border-radius:10px;
+    padding:12px 14px;
+    font-size:14px;
+    line-height:1.5;
+  }
+  .forum-post b{color:var(--gold); font-size:13px; display:block; margin-bottom:3px; font-family:'Space Mono', monospace;}
+
+  .inter-title{
+    font-family:'Space Mono', monospace;
+    font-size:12px; letter-spacing:2px; text-transform:uppercase; color:var(--text-dim);
+  }
+
+  /* ===== INTRO / ENDING ===== */
+  .intro, .ending{text-align:center;}
+  .intro p, .ending p{font-size:16px; line-height:1.65; color:var(--text-dim); max-width:640px; margin:0 auto 14px;}
+  .ending h2{
+    font-family:'Oswald', sans-serif; text-transform:uppercase;
+    color:var(--gold); font-size:clamp(24px,4vw,32px); margin-bottom:6px; letter-spacing:1px;
+  }
+  .ending .tag{font-family:'Space Mono', monospace; font-size:12px; color:var(--text-dim); letter-spacing:1px; margin-bottom:18px; display:block;}
+  .diary{
+    background:rgba(255,255,255,0.04);
+    border-left:3px solid var(--wine-light);
+    padding:16px 18px; text-align:left; border-radius:0 8px 8px 0;
+    font-style:italic; font-size:15px; line-height:1.6; max-width:640px; margin:0 auto 22px;
+  }
+  .final-stats{
+    display:grid; grid-template-columns:repeat(2,1fr); gap:12px 24px;
+    max-width:520px; margin:0 auto 22px; text-align:left;
+  }
+  .discuss{
+    background:var(--bg-stage-2); border-radius:10px; padding:16px 20px;
+    max-width:640px; margin:0 auto 22px; text-align:left;
+  }
+  .discuss h3{
+    font-family:'Space Mono', monospace; font-size:12px; letter-spacing:2px;
+    text-transform:uppercase; color:var(--gold); margin:0 0 10px;
+  }
+  .discuss ul{margin:0; padding-left:18px; font-size:15px; line-height:1.6; color:var(--text);}
+
+  footer.hint{
+    text-align:center; font-family:'Space Mono', monospace; font-size:12px;
+    color:var(--text-dim); padding:14px; background:var(--bg-stage);
+    border-radius:0 0 14px 14px; letter-spacing:1px;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .lights span{animation:none; background:var(--gold);}
+  }
+</style>
+</head>
+<body>
+
+<div id="app">
+  <header class="marquee">
+    <div class="lights" id="lightsTop"></div>
+    <h1>LUCES, CÁMARA... <span>¿INFANCIA?</span></h1>
+    <div class="lights" id="lightsBottom"></div>
+    <div class="act-indicator" id="actIndicator">FICCIÓN INTERACTIVA · PARA JUGAR EN CLASE</div>
+  </header>
+
+  <div class="dashboard" id="dashboard"></div>
+
+  <main id="stage"></main>
+
+  <footer class="hint" id="hint">El curso decide en voz alta — la persona a cargo de la pantalla hace clic o presiona 1 / 2 / 3</footer>
+</div>
+
+<script>
+/* ============ CONTENIDO DEL JUEGO ============ */
+const STATS_META = [
+  {key:'fama', label:'Fama', cls:'fill-fama'},
+  {key:'bienestar', label:'Bienestar', cls:'fill-bienestar'},
+  {key:'educacion', label:'Educación', cls:'fill-educacion'},
+  {key:'autonomia', label:'Autonomía', cls:'fill-autonomia'},
+];
+
+function clamp(n){ return Math.max(0, Math.min(100, n)); }
+
+const ACT1 = {
+  title:'ACTO I · EL DESCUBRIMIENTO',
+  nodes:[
+    {
+      scene:'OFICINA DE "ESTRELLA FILMS" — AÑO 1',
+      lines:[
+        {who:null, text:'Alex Ríos, 9 años, actúa en la obra escolar. Un video casero se vuelve viral esa misma noche. Una semana después, el estudio pone el contrato de representación sobre la mesa.', narration:true},
+        {who:'GIO (agente)', text:'"Si lo firman hoy, Alex entra al casting principal de la próxima semana. Es una oportunidad así de grande, una vez en la vida."'},
+        {who:null, text:'Un amigo de la familia sugiere, en voz baja, pedir revisión de un abogado independiente antes de firmar.', narration:true},
+      ],
+      options:[
+        {label:'Firmar hoy mismo, no perder la oportunidad', effects:{fama:18, autonomia:-20}, note:'El contrato se firma en los términos que propuso el estudio.'},
+        {label:'Pedir que un abogado independiente lo revise primero', effects:{autonomia:20, fama:-12}, note:'El estudio acepta esperar una semana, algo molesto.'},
+      ]
+    },
+    {
+      scene:'SET DE GRABACIÓN — ENTRE TOMAS, AÑO 1',
+      lines:[
+        {who:'GIO', text:'"Ya conseguimos tu tutor de set, Alex. Vas a poder estudiar entre tomas, ¡ni notarás que te perdiste la escuela real!"'},
+        {who:'PRIYA (tutora de set)', text:'(aparte) "Tres horas repartidas en bloques de quince minutos no son tres horas de clase. Puedo pelear por más tiempo, pero eso retrasa el rodaje de mañana."'},
+      ],
+      options:[
+        {label:'Pedir a Priya que negocie más horas reales de clase', effects:{educacion:18, fama:-10}, note:'El estudio se queja del retraso, pero cede un poco.'},
+        {label:'Aceptar el esquema del estudio para no generar conflicto', effects:{fama:14, educacion:-14}, note:'El rodaje sigue sin contratiempos.'},
+      ]
+    },
+  ]
+};
+
+const ACT2 = {
+  title:'ACTO II · LA MÁQUINA',
+  nodes:[
+    {
+      scene:'OFICINA CONTABLE DE LA FAMILIA — AÑO 3',
+      lines:[
+        {who:null, text:'La serie explotó y las ganancias de Alex ya son considerables. Alguien debe administrar ese dinero.', narration:true},
+      ],
+      options:[
+        {label:'Dejar que la producción familiar administre todo', effects:{autonomia:-20, bienestar:8}, note:'Menos papeleo, menos preguntas incómodas en casa por ahora.'},
+        {label:'Pedir abrir una cuenta fiduciaria protegida a nombre de Alex', effects:{autonomia:20, bienestar:-10}, note:'La conversación genera tensión familiar, pero el dinero queda resguardado.'},
+      ]
+    },
+    {
+      scene:'ESCÁNDALO DE PRENSA — AÑO 4',
+      lines:[
+        {who:null, text:'Un tabloide publica fotos de Alex visiblemente agotado, con el titular: "¿SE LE ESTÁ ACABANDO LA MAGIA A LA ESTRELLA INFANTIL?" El equipo pide una respuesta rápida.', narration:true},
+      ],
+      options:[
+        {label:'Responder públicamente y defenderse', effects:{fama:10, bienestar:-14}, note:'La respuesta genera aún más cobertura mediática.'},
+        {label:'Guardar silencio y seguir con la agenda de trabajo', effects:{bienestar:-10, autonomia:-10}, note:'El equipo decide "dejar que pase" sin consultar mucho a Alex.'},
+        {label:'Insistir en tomarse una pausa real de trabajo', effects:{bienestar:18, fama:-16}, note:'Se cancelan compromisos por primera vez en años.'},
+      ]
+    },
+  ]
+};
+
+const ACT3 = {
+  title:'ACTO III · DESPUÉS DE LOS CRÉDITOS',
+  nodes:[
+    {
+      scene:'REVISIÓN FINANCIERA — AÑO 8',
+      lines:[
+        {who:null, text:'La serie terminó su última temporada. Alex tiene 17 años y empieza, por primera vez, a hacer preguntas sobre las ganancias acumuladas durante todos estos años.', narration:true},
+      ],
+      options:[
+        {label:'Pedir una auditoría independiente de las finanzas familiares', effects:{autonomia:20, bienestar:-12}, note:'Aparecen números que nadie había explicado con claridad hasta ahora.'},
+        {label:'Evitar el tema para no romper la relación familiar', effects:{autonomia:-20, bienestar:10}, note:'La paz en casa se mantiene, al menos por ahora.'},
+      ]
+    },
+    {
+      scene:'ÚLTIMA DECISIÓN — AÑO 8',
+      lines:[
+        {who:null, text:'Alex, ahora con más control sobre su propia vida del que tuvo en años, decide qué hacer de aquí en adelante con su talento.', narration:true},
+      ],
+      options:[
+        {label:'Seguir en la industria, pero con reglas propias esta vez', effects:{autonomia:8}, note:'Alex empieza a exigir condiciones distintas en cada nuevo proyecto.'},
+        {label:'Dejar la actuación y explorar algo completamente distinto', effects:{fama:-12, bienestar:8}, note:'Por primera vez en años, el nombre de Alex no aparece en ningún cartel.'},
+        {label:'Usar su plataforma para hablar de las condiciones de los niños en la industria', effects:{autonomia:12, fama:5}, note:'La entrevista que da al respecto se vuelve, sin buscarlo, su publicación más comentada en años.'},
+      ]
+    },
+  ]
+};
+
+/* ---- Interstitials (contenido transmedia) ---- */
+function tabloidFor(stats){
+  if(stats.bienestar<=40){
+    return {kicker:'ESTRELLA DIARIA · EXCLUSIVA', h:'¿SE LE ESTÁ ACABANDO LA MAGIA A LA ESTRELLA INFANTIL?', p:'"Fuentes cercanas al set aseguran que Alex luce cada vez más cansado entre tomas. El estudio no ha respondido nuestras preguntas."'};
+  }
+  if(stats.fama>=65){
+    return {kicker:'ESTRELLA DIARIA · PORTADA', h:'¡ALEX RÍOS ARRASA! El próximo gran nombre del entretenimiento familiar', p:'"Todo el que trabaja con Alex coincide: nunca habían visto un talento así a esta edad. La pregunta es qué tan lejos puede llegar."'};
+  }
+  return {kicker:'ESTRELLA DIARIA', h:'Estrella Films confirma nueva promesa infantil para su catálogo', p:'"El estudio asegura que el bienestar del menor es una prioridad durante toda la producción."'};
+}
+function socialFor(stats){
+  const engagement = Math.round(1200 + stats.fama*38);
+  if(stats.autonomia<=35){
+    return {caption:'✨ ¡Un día más de sueños hechos realidad! Gracias por tanto cariño 💛 #NuevaEstrella', foot:engagement.toLocaleString()+' me gusta · publicado por el equipo de management'};
+  }
+  return {caption:'Hoy escribí esto yo mismo/a: gracias por acompañarme en este proceso, ha sido más intenso de lo que se ve en pantalla 🙂', foot:engagement.toLocaleString()+' me gusta · publicado por Alex'};
+}
+function forumFor(stats){
+  const posts = [
+    {who:'fan_forever_22', text:'no puedo creer que sea tan joven y ya actúe así de bien, es un genio de verdad 😍'},
+  ];
+  if(stats.bienestar<=45){
+    posts.push({who:'cinefilo_critico', text:'igual espero que sus papás y el estudio lo estén cuidando bien... son solo unos años de infancia y no vuelven.'});
+  } else {
+    posts.push({who:'cinefilo_critico', text:'se nota que además de talento tiene un buen equipo detrás, ojalá siga así.'});
+  }
+  if(stats.fama>=65){
+    posts.push({who:'anonimo_88', text:'a este ritmo de fama tan joven, ¿alguien más se pregunta cómo va a estar en 5 años?'});
+  }
+  return posts;
+}
+
+/* ---- Finales ---- */
+function computeEnding(stats){
+  if(stats.autonomia>=65 && stats.bienestar>=60){
+    return {
+      key:'reinvencion', title:'REINVENCIÓN',
+      tag:'Autonomía alta · Bienestar alto',
+      diary:'"Diario de Alex, 17 años: hoy firmé un proyecto que elegí yo, en mis términos, sin que nadie más decidiera por mí. No sé si volveré a actuar tan seguido como antes. Por primera vez, eso también se siente bien."',
+      desc:'Alex logra salir del sistema que lo formó sin romperlo del todo: construye una carrera —o una vida fuera de la actuación— definida por decisiones propias, no por la inercia de la industria.'
+    };
+  }
+  if(stats.fama>=60 && stats.autonomia>=50){
+    return {
+      key:'segunda-temporada', title:'SEGUNDA TEMPORADA DE LA VIDA',
+      tag:'Fama alta · Autonomía media-alta',
+      diary:'"Diario de Alex, 17 años: sigo siendo una cara conocida, pero ahora las condiciones las negocio yo. Cambié al equipo que llevaba mis redes. Todavía se siente raro tener tanto control después de tantos años sin tenerlo."',
+      desc:'Alex transforma la fama acumulada en un proyecto propio, ya no dependiente del esquema familiar y managerial original. La industria sigue presente, pero con nuevas reglas.'
+    };
+  }
+  if(stats.autonomia<=35){
+    return {
+      key:'cuenta-pendiente', title:'LA CUENTA PENDIENTE',
+      tag:'Autonomía muy baja',
+      diary:'"Diario de Alex, 17 años: pedí ver los números de todos estos años. Todavía estoy esperando una respuesta clara. Nadie en casa quiere hablar del tema."',
+      desc:'Al llegar a la mayoría de edad, Alex descubre que buena parte del dinero ganado ya no está disponible o nunca estuvo bajo su control. El juego cierra en la conversación —difícil, no resuelta en pantalla— del reclamo familiar.'
+    };
+  }
+  if(stats.bienestar<=40 && stats.educacion<=45){
+    return {
+      key:'personaje', title:'EL PERSONAJE QUE QUEDÓ',
+      tag:'Bienestar bajo · Educación baja',
+      diary:'"Diario de Alex, 17 años: a veces no sé bien dónde termina el personaje y dónde empiezo yo. Llevo tanto tiempo siendo ese nombre que ya no recuerdo cómo se siente no serlo."',
+      desc:'Alex sigue trabajando por inercia, atrapado en la identidad pública construida durante años, con pocas herramientas —educativas o emocionales— para imaginar algo distinto.'
+    };
+  }
+  return {
+    key:'equilibrio', title:'EQUILIBRIO INCÓMODO',
+    tag:'Un poco de todo, nada del todo resuelto',
+    diary:'"Diario de Alex, 17 años: no sé si esto salió bien o mal. Hay cosas de las que estoy orgulloso/a y otras que todavía me cuesta nombrar. Supongo que así es, y ya."',
+    desc:'Ni una historia de triunfo limpio ni una de daño evidente: Alex sale de estos años con ganancias reales y costos reales, sin que ninguno cancele al otro del todo — probablemente el desenlace más parecido a los casos que inspiran este juego.'
+  };
+}
+
+/* ============ MOTOR DEL JUEGO ============ */
+let stats = {fama:50, bienestar:50, educacion:50, autonomia:50};
+let sequence = [];
+ACT1.nodes.forEach(n=>sequence.push({type:'scene', act:ACT1.title, node:n}));
+sequence.push({type:'interstitial', which:1});
+ACT2.nodes.forEach(n=>sequence.push({type:'scene', act:ACT2.title, node:n}));
+sequence.push({type:'interstitial', which:2});
+ACT3.nodes.forEach(n=>sequence.push({type:'scene', act:ACT3.title, node:n}));
+sequence.push({type:'ending'});
+
+let pos = -1; // -1 = pantalla de inicio
+let showingConsequence = null; // {node, chosen}
+
+const stageEl = document.getElementById('stage');
+const dashboardEl = document.getElementById('dashboard');
+const actIndicatorEl = document.getElementById('actIndicator');
+const hintEl = document.getElementById('hint');
+
+function buildLights(){
+  ['lightsTop','lightsBottom'].forEach(id=>{
+    const el = document.getElementById(id);
+    el.innerHTML='';
+    for(let i=0;i<18;i++){
+      const s = document.createElement('span');
+      s.style.animationDelay = (i*0.09)+'s';
+      el.appendChild(s);
+    }
+  });
+}
+function buildDashboard(){
+  dashboardEl.innerHTML = STATS_META.map(m=>`
+    <div class="stat">
+      <div class="stat-top"><span>${m.label}</span><b id="val-${m.key}">${stats[m.key]}</b></div>
+      <div class="bar-track"><div class="bar-fill ${m.cls}" id="bar-${m.key}" style="width:${stats[m.key]}%"></div></div>
+    </div>`).join('');
+}
+function refreshDashboard(){
+  STATS_META.forEach(m=>{
+    document.getElementById('val-'+m.key).textContent = stats[m.key];
+    document.getElementById('bar-'+m.key).style.width = stats[m.key]+'%';
+  });
+}
+
+function renderIntro(){
+  actIndicatorEl.textContent = 'FICCIÓN INTERACTIVA · PARA JUGAR EN CLASE';
+  hintEl.textContent = 'La persona a cargo de la pantalla hace clic para comenzar';
+  stageEl.innerHTML = `
+    <div class="intro">
+      <p style="color:var(--text); font-size:18px;">Toda la clase sigue, en voz alta, la carrera de <b>Alex Ríos</b>, un niño actor ficticio, desde su descubrimiento hasta los 17 años. <span style="color:var(--text-dim); font-size:15px;">(≈ 10-15 min, incluyendo la discusión final)</span></p>
+      <p>En cada decisión, discutan como grupo qué opción tomar. Cuando haya consenso (o gane la mayoría), quien controla la pantalla hace clic o presiona la tecla numérica correspondiente.</p>
+      <p>Cuatro medidores — Fama, Bienestar, Educación y Autonomía — reaccionan a cada elección y determinan, al final, uno de cinco desenlaces posibles.</p>
+      <button class="primary-btn" onclick="advance()">Comenzar ▶</button>
+    </div>`;
+}
+
+function renderScene(step){
+  actIndicatorEl.textContent = step.act;
+  const n = step.node;
+  hintEl.textContent = 'Elijan en voz alta — clic en una opción o presiona 1 / 2 / 3';
+  stageEl.innerHTML = `
+    <div class="scene-label">${n.scene}</div>
+    <div class="dialogue">
+      ${n.lines.map(l=>`
+        <div class="line ${l.narration?'narration':''}">
+          ${l.who?`<span class="who">${l.who}</span>`:''}${l.text}
+        </div>`).join('')}
+    </div>
+    <div class="options" id="optionsWrap"></div>
+  `;
+  const wrap = document.getElementById('optionsWrap');
+  n.options.forEach((opt,i)=>{
+    const btn = document.createElement('button');
+    btn.className='opt-btn';
+    btn.innerHTML = `<span class="opt-key">${i+1}</span><span>${opt.label}</span>`;
+    btn.onclick = ()=>chooseOption(step, opt);
+    wrap.appendChild(btn);
+  });
+}
+
+function chooseOption(step, opt){
+  Object.keys(opt.effects||{}).forEach(k=>{ stats[k] = clamp(stats[k] + opt.effects[k]); });
+  refreshDashboard();
+  const deltas = Object.entries(opt.effects||{}).map(([k,v])=>{
+    const meta = STATS_META.find(m=>m.key===k);
+    const sign = v>0?'up':'down';
+    const txt = (v>0?'+':'')+v;
+    return `<span class="${sign}">${meta.label} ${txt}</span>`;
+  }).join('');
+  hintEl.textContent = 'Continúen cuando estén listos';
+  stageEl.innerHTML = `
+    <div class="scene-label">${step.node.scene}</div>
+    <div class="consequence">
+      ${opt.note}
+      <div class="delta-row">${deltas}</div>
+    </div>
+    <button class="primary-btn" onclick="advance()">Siguiente ▶</button>
+  `;
+}
+
+function renderInterstitial(step){
+  actIndicatorEl.textContent = step.which===1 ? 'ENTRE ACTOS · PRENSA Y REDES' : 'ENTRE ACTOS · LA REACCIÓN PÚBLICA';
+  hintEl.textContent = 'Comenten qué les llama la atención antes de continuar';
+  const tab = tabloidFor(stats);
+  const soc = socialFor(stats);
+  const forum = forumFor(stats);
+  stageEl.innerHTML = `
+    <div class="inter-wrap">
+      <div class="inter-title">Así se ve, desde afuera, lo que acaba de pasar</div>
+      <div class="tabloid">
+        <div class="kicker">${tab.kicker}</div>
+        <h2>${tab.h}</h2>
+        <p>${tab.p}</p>
+      </div>
+      <div class="social-card">
+        <div class="social-head"><div class="social-avatar"></div>Alex Ríos ✓</div>
+        <div class="social-body">${soc.caption}</div>
+        <div class="social-foot">${soc.foot}</div>
+      </div>
+      <div class="forum">
+        ${forum.map(f=>`<div class="forum-post"><b>${f.who}</b>${f.text}</div>`).join('')}
+      </div>
+      <button class="primary-btn" onclick="advance()">Continuar ▶</button>
+    </div>
+  `;
+}
+
+function renderEnding(){
+  const e = computeEnding(stats);
+  actIndicatorEl.textContent = 'FINAL · '+e.title;
+  hintEl.textContent = 'Abran la discusión de clase con las preguntas de abajo';
+  stageEl.innerHTML = `
+    <div class="ending">
+      <span class="tag">${e.tag}</span>
+      <h2>${e.title}</h2>
+      <p>${e.desc}</p>
+      <div class="diary">${e.diary}</div>
+      <div class="final-stats">
+        ${STATS_META.map(m=>`
+          <div class="stat">
+            <div class="stat-top"><span>${m.label}</span><b>${stats[m.key]}</b></div>
+            <div class="bar-track"><div class="bar-fill ${m.cls}" style="width:${stats[m.key]}%"></div></div>
+          </div>`).join('')}
+      </div>
+      <div class="discuss">
+        <h3>Para discutir en clase</h3>
+        <ul>
+          <li>¿En qué momento del juego la decisión de la clase habría sido distinta a la de la familia de Alex en la ficción? ¿Por qué se sintió más fácil aquí que en la vida real?</li>
+          <li>Ningún medidor bajó "por accidente" — cada elección benefició a alguien (Alex, la familia, el estudio o el público). ¿Quién ganó más en las decisiones que tomó el grupo?</li>
+          <li>¿Qué pieza transmedia (el tabloide, la red social, el foro) mostró algo que el juego principal no decía directamente?</li>
+        </ul>
+      </div>
+      <button class="primary-btn" onclick="restart()">Volver a jugar desde cero ↺</button>
+    </div>
+  `;
+}
+
+function renderStep(){
+  if(pos===-1){ renderIntro(); return; }
+  const step = sequence[pos];
+  if(step.type==='scene') renderScene(step);
+  else if(step.type==='interstitial') renderInterstitial(step);
+  else if(step.type==='ending') renderEnding();
+}
+
+function advance(){
+  pos++;
+  renderStep();
+  stageEl.scrollIntoView({behavior:'smooth', block:'start'});
+}
+function restart(){
+  stats = {fama:50, bienestar:50, educacion:50, autonomia:50};
+  refreshDashboard();
+  pos=-1;
+  renderStep();
+}
+
+document.addEventListener('keydown', (ev)=>{
+  if(['1','2','3'].includes(ev.key)){
+    const buttons = document.querySelectorAll('#optionsWrap .opt-btn');
+    const idx = parseInt(ev.key,10)-1;
+    if(buttons[idx]) buttons[idx].click();
+  } else if(ev.key==='Enter' || ev.key===' '){
+    const primary = document.querySelector('.primary-btn');
+    if(primary){ ev.preventDefault(); primary.click(); }
+  }
+});
+
+buildLights();
+buildDashboard();
+renderStep();
+</script>
+</body>
+</html>
